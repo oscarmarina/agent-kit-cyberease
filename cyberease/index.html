@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberEase</title>
+    <meta
+      name="description"
+      content="CyberEase — a Cybercore-styled cubic-bezier editor tuned to cubic-bezier(.67,.66,1,.23)."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/cybercore-css@0.3.0/dist/cybercore.min.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="cyber-noise">
+    <div class="app-shell">
+      <div class="ambient ambient--grid" aria-hidden="true"></div>
+      <div class="ambient ambient--glow" aria-hidden="true"></div>
+
+      <header class="hero cyber-card cyber-datastream">
+        <div class="hero__copy">
+          <p class="eyebrow cyber-text-cyan">Bezier Signal Lab</p>
+          <h1 class="cyber-glitch hero__title" data-text="CyberEase">CyberEase</h1>
+          <p class="hero__lede">
+            Dual-curve editor and replay deck for
+            <span class="cyber-text-glow">cubic-bezier(.67,.66,1,.23)</span>.
+          </p>
+        </div>
+
+        <div class="hero__meta">
+          <div class="signal-card">
+            <span class="signal-card__label">Target Curve</span>
+            <strong id="curve-string">cubic-bezier(0.67, 0.66, 1, 0.23)</strong>
+          </div>
+          <div class="signal-card">
+            <span class="signal-card__label">Hash Link</span>
+            <strong id="hash-string">#.67,.66,1,.23</strong>
+          </div>
+          <div class="hero__actions">
+            <button id="copy-button" class="cyber-btn" type="button">Copy Curve</button>
+          </div>
+          <p id="status-text" class="status-text cyber-text-yellow">Signal initialized.</p>
+        </div>
+      </header>
+      <main>
+        <div class="layout">
+          <section class="graph-card cyber-card cyber-neon-border cyber-scanlines">
+            <div class="panel-header panel-header--graph">
+              <div>
+                <p class="panel-kicker">Progression / Time</p>
+                <h2 class="cyber-h3">Curve Editor</h2>
+              </div>
+              <div class="compare-key">
+                <span class="compare-key__item compare-key__item--current">Current</span>
+                <span class="compare-key__item compare-key__item--reference">Reference Ease</span>
+              </div>
+            </div>
+
+            <div class="graph-shell">
+              <svg id="curve-graph" viewBox="0 0 100 100" role="img" aria-label="Bezier curve editor">
+                <defs>
+                  <linearGradient id="curve-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#00f0ff"></stop>
+                    <stop offset="100%" stop-color="#fcee0a"></stop>
+                  </linearGradient>
+                </defs>
+
+                <g class="graph-grid">
+                  <line x1="0" y1="0" x2="100" y2="0"></line>
+                  <line x1="0" y1="25" x2="100" y2="25"></line>
+                  <line x1="0" y1="50" x2="100" y2="50"></line>
+                  <line x1="0" y1="75" x2="100" y2="75"></line>
+                  <line x1="0" y1="100" x2="100" y2="100"></line>
+                  <line x1="0" y1="0" x2="0" y2="100"></line>
+                  <line x1="25" y1="0" x2="25" y2="100"></line>
+                  <line x1="50" y1="0" x2="50" y2="100"></line>
+                  <line x1="75" y1="0" x2="75" y2="100"></line>
+                  <line x1="100" y1="0" x2="100" y2="100"></line>
+                </g>
+
+                <path id="linearity-path" class="graph-linearity" d="M 0 75 L 100 25"></path>
+                <line
+                  id="cursor-line"
+                  class="graph-cursor"
+                  x1="50"
+                  y1="0"
+                  x2="50"
+                  y2="100"
+                  visibility="hidden"
+                ></line>
+                <path id="compare-path" class="graph-compare"></path>
+                <line id="handle-line-1" class="graph-guide"></line>
+                <line id="handle-line-2" class="graph-guide"></line>
+                <path id="curve-path" class="graph-curve"></path>
+
+                <circle cx="0" cy="75" r="1.8" class="graph-anchor"></circle>
+                <circle cx="100" cy="25" r="1.8" class="graph-anchor"></circle>
+
+                <g
+                  id="handle-1"
+                  class="graph-handle"
+                  data-handle="0"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Control point 1"
+                >
+                  <circle r="4.4"></circle>
+                  <circle r="2.1" class="graph-handle__core"></circle>
+                </g>
+                <g
+                  id="handle-2"
+                  class="graph-handle"
+                  data-handle="1"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Control point 2"
+                >
+                  <circle r="4.4"></circle>
+                  <circle r="2.1" class="graph-handle__core"></circle>
+                </g>
+              </svg>
+
+              <div class="graph-legend">
+                <span>0%</span>
+                <span>50%</span>
+                <span>100%</span>
+              </div>
+              <div id="cursor-readout" class="graph-cursor-readout">&nbsp;</div>
+            </div>
+          </section>
+          <div class="cyber-card preview-card">
+            <div class="panel-header panel-header--compact">
+              <div>
+                <p class="panel-kicker">Preview & Compare</p>
+                <h2 class="cyber-h4">Live Comparison</h2>
+              </div>
+              <p class="panel-note">Current and reference curves replay together on the same rails.</p>
+            </div>
+
+            <div class="compare-pill-row" aria-hidden="true">
+              <span class="compare-pill compare-pill--current">Current</span>
+              <span class="compare-pill compare-pill--reference" id="compare-pill-label">Ease</span>
+            </div>
+
+            <div id="compare-preset-row" class="compare-preset-row"></div>
+
+            <div class="preview-lane">
+              <span class="preview-lane__label">Translation</span>
+              <div class="preview-track preview-track--dual">
+                <div
+                  class="preview-node preview-node--compare preview-node--slide"
+                  data-preview-compare
+                ></div>
+                <div class="preview-node preview-node--slide" data-preview-node></div>
+              </div>
+            </div>
+
+            <div class="preview-lane">
+              <span class="preview-lane__label">Scale</span>
+              <div class="preview-track preview-track--centered preview-track--dual">
+                <div
+                  class="preview-node preview-node--compare preview-node--pulse"
+                  data-preview-compare
+                ></div>
+                <div class="preview-node preview-node--pulse" data-preview-node></div>
+              </div>
+            </div>
+
+            <div class="preview-lane">
+              <span class="preview-lane__label">Signal Width</span>
+              <div class="preview-track preview-track--bar preview-track--dual preview-track--bars">
+                <div class="preview-bar preview-bar--compare" data-preview-compare></div>
+                <div class="preview-bar" data-preview-node></div>
+              </div>
+            </div>
+            <div class="hero__actions">
+              <button id="rerun-button" class="cyber-btn cyber-btn--ghost" type="button">Replay</button>
+            </div>
+            <div class="preset-row" id="preset-row"></div>
+          </div>
+        </div>
+        <div class="layout">
+          <div class="cyber-card control-card">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Signal Input</p>
+                <h2 class="cyber-h4">Control Points</h2>
+              </div>
+            </div>
+
+            <div class="input-grid">
+              <label class="cyber-field">
+                <span class="cyber-field__label">X1</span>
+                <input id="input-x1" class="cyber-input" type="number" step="0.01" min="0" max="1" />
+              </label>
+              <label class="cyber-field">
+                <span class="cyber-field__label">Y1</span>
+                <input id="input-y1" class="cyber-input" type="number" step="0.01" min="-0.5" max="1.5" />
+              </label>
+              <label class="cyber-field">
+                <span class="cyber-field__label">X2</span>
+                <input id="input-x2" class="cyber-input" type="number" step="0.01" min="0" max="1" />
+              </label>
+              <label class="cyber-field">
+                <span class="cyber-field__label">Y2</span>
+                <input id="input-y2" class="cyber-input" type="number" step="0.01" min="-0.5" max="1.5" />
+              </label>
+            </div>
+          </div>
+          <div class="cyber-card telemetry-card">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Diagnostics</p>
+                <h2 class="cyber-h4">Telemetry</h2>
+              </div>
+            </div>
+
+            <div class="telemetry-grid">
+              <div class="telemetry-item">
+                <span>25% Progress</span>
+                <strong id="metric-quarter">0.00</strong>
+              </div>
+              <div class="telemetry-item">
+                <span>50% Progress</span>
+                <strong id="metric-mid">0.00</strong>
+              </div>
+              <div class="telemetry-item">
+                <span>75% Progress</span>
+                <strong id="metric-three-quarter">0.00</strong>
+              </div>
+              <div class="telemetry-item">
+                <span>Launch Bias</span>
+                <strong id="metric-bias">0.00</strong>
+              </div>
+            </div>
+
+            <div id="sample-bars" class="sample-bars" aria-label="Sampled easing bars"></div>
+          </div>
+        </div>
+      </main>
+
+      <noscript>
+        <div class="cyber-card noscript-card">
+          JavaScript is required to edit the curve, but the target easing is still visible:
+          cubic-bezier(.67,.66,1,.23).
+        </div>
+      </noscript>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
